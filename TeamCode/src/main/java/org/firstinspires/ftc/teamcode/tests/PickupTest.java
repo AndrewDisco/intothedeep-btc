@@ -48,9 +48,9 @@ public class PickupTest extends LinearOpMode {
         }
 
         // Initialize Servos with error checking
-        baseRotation = hardwareMap.get(Servo.class, "baseRotation");
-        updown = hardwareMap.get(Servo.class, "updown");
-        gripperRotation = hardwareMap.get(Servo.class, "gripperRotation");
+        baseRotation = hardwareMap.get(Servo.class, "armRotation");
+        updown = hardwareMap.get(Servo.class, "armPivot");
+        gripperRotation = hardwareMap.get(Servo.class, "roll");
         gripper = hardwareMap.get(Servo.class, "gripper");
 
         if (baseRotation == null || updown == null || gripperRotation == null || gripper == null) {

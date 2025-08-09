@@ -15,7 +15,7 @@ public class PickupCommand extends CommandBase {
     private final double originalRotationPosition;
 
     // Pickup positions
-    private static final double PICKUP_PIVOT_POSITION = 0.17;
+    private static final double PICKUP_PIVOT_POSITION = 0.28;
     private static final double PICKUP_ROTATION_POSITION = 0.22;
 
     // State machine for command sequence

@@ -58,7 +58,7 @@ public class MainOpMode extends LinearOpMode {
 
         // Initialize arm servos
         Servo armpivot = hardwareMap.get(Servo.class, "armPivot");
-        armpivot.setPosition(0.4);
+        armpivot.setPosition(0.7);
 
         Servo armrotation = hardwareMap.get(Servo.class, "armRotation");
         armrotation.setPosition(0.22);
@@ -70,7 +70,7 @@ public class MainOpMode extends LinearOpMode {
 
         // Create and schedule commands
         DriveCommand driveCommand = new DriveCommand(drivetrain, driverGamepad, DRIVE_SPEED);
-        SliderControlCommand sliderCommand = new SliderControlCommand(horizontalSlider, gamepad2);
+        SliderControlCommand sliderCommand = new SliderControlCommand(horizontalSlider, gamepad2, armpivot);
         GripperControlCommand gripperCommand = new GripperControlCommand(gripper, operatorGamepad);
         PickupCommand pickupCommand = new PickupCommand(armpivot, armrotation, gripper);
         TelemetryCommand telemetryCommand = new TelemetryCommand(telemetry, drivetrain, horizontalSlider,
