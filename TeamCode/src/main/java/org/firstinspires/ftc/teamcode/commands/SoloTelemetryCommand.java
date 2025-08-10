@@ -9,36 +9,31 @@ import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlider;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 
-public class TelemetryCommand extends CommandBase {
+public class SoloTelemetryCommand extends CommandBase {
     private final Telemetry telemetry;
-    private final Drivetrain drivetrain;
     private final HorizontalSlider horizontalSlider;
     private final Gripper gripper;
-    private final GamepadEx driverGamepad;
-    private final GamepadEx operatorGamepad;
-    private final Gamepad gamepad2;
+    private final GamepadEx soloGamepad;
+    private final Gamepad gamepad1;
     private final Arm arm;
 
-    public TelemetryCommand(Telemetry telemetry, Drivetrain drivetrain,
+    public SoloTelemetryCommand(Telemetry telemetry, Drivetrain drivetrain,
                            HorizontalSlider horizontalSlider, Gripper gripper,
-                           GamepadEx driverGamepad, GamepadEx operatorGamepad,
-                           Gamepad gamepad2, Arm arm) {
+                           GamepadEx soloGamepad, Gamepad gamepad1, Arm arm) {
         this.telemetry = telemetry;
-        this.drivetrain = drivetrain;
         this.horizontalSlider = horizontalSlider;
         this.gripper = gripper;
-        this.driverGamepad = driverGamepad;
-        this.operatorGamepad = operatorGamepad;
-        this.gamepad2 = gamepad2;
+        this.soloGamepad = soloGamepad;
+        this.gamepad1 = gamepad1;
         this.arm = arm;
     }
 
     @Override
     public void execute() {
         // Drive telemetry
-        double x = -driverGamepad.getLeftX();
-        double y = -driverGamepad.getLeftY();
-        double rx = -driverGamepad.getRightX();
+        double x = -soloGamepad.getLeftX();
+        double y = -soloGamepad.getLeftY();
+        double rx = -soloGamepad.getRightX();
 
         telemetry.addData("Drive Power", "X: %.2f, Y: %.2f, RX: %.2f", x, y, rx);
         telemetry.addLine();
@@ -53,29 +48,15 @@ public class TelemetryCommand extends CommandBase {
 
         // Gripper telemetry
         telemetry.addData("Gripper State", gripper.isOpen ? "OPEN" : "CLOSED");
-        telemetry.addData("Gripper Roll Input", "%.2f", operatorGamepad.getRightX());
-        telemetry.addLine();
-
-        // Arm telemetry - Note: Would need getter methods in Arm subsystem to show positions
-        telemetry.addData("Arm Status", "Arm subsystem active");
         telemetry.addLine();
 
         // Control inputs
-        telemetry.addData("Gamepad 2 - Right Trigger", "%.2f", gamepad2.right_trigger);
-        telemetry.addData("Gamepad 2 - Left Trigger", "%.2f", gamepad2.left_trigger);
-        telemetry.addData("Gamepad 2 - Y Button", operatorGamepad.getButton(com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y) ? "Pressed" : "Not Pressed");
-        telemetry.addLine();
-
-        // Quick reference
-        telemetry.addLine("Controls:");
-        telemetry.addLine("GP1: Left stick: Move/Strafe | Right stick X: Rotate");
-        telemetry.addLine("GP2: Triggers: Sliders | Y: Gripper | X: Pickup | Right stick X: Roll");
+        telemetry.addData("Right Trigger", "%.3f", gamepad1.right_trigger);
+        telemetry.addData("Left Trigger", "%.3f", gamepad1.left_trigger);
+        telemetry.addData("Y Button", soloGamepad.getButton(com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y));
+        telemetry.addData("Dpad Left", soloGamepad.getButton(com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT));
+        telemetry.addData("Dpad Right", soloGamepad.getButton(com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT));
 
         telemetry.update();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false; // This command runs continuously
     }
 }

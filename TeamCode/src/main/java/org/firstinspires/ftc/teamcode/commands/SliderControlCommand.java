@@ -3,28 +3,28 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlider;
-import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.subsystems.Arm;
+import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 
 public class SliderControlCommand extends CommandBase {
     private final HorizontalSlider horizontalSlider;
     private final Gamepad gamepad;
-    private final Servo armPivot;
+    private final Arm arm;
+    private final Gripper gripper;
 
     private static final double TRIGGER_DEADZONE = 0.1;
-    private static final double ARM_PIVOT_INITIAL = 0.7;
-    private static final double ARM_PIVOT_RIGHT_TRIGGER = 0.36;
-    private static final double ARM_PIVOT_LEFT_TRIGGER = 0.38;
 
     private boolean prevRightTriggerPressed = false;
     private boolean prevLeftTriggerPressed = false;
-    private double currentArmPivotPosition = ARM_PIVOT_INITIAL;
 
-    public SliderControlCommand(HorizontalSlider horizontalSlider, Gamepad gamepad, Servo armPivot) {
+    public SliderControlCommand(HorizontalSlider horizontalSlider, Gamepad gamepad, Arm arm, Gripper gripper) {
         this.horizontalSlider = horizontalSlider;
         this.gamepad = gamepad;
-        this.armPivot = armPivot;
+        this.arm = arm;
+        this.gripper = gripper;
 
         addRequirements(horizontalSlider);
+        // Note: NOT requiring arm or gripper subsystems so other commands can take control
     }
 
     @Override
@@ -39,26 +39,36 @@ public class SliderControlCommand extends CommandBase {
         // Only fire on the rising edge of right trigger
         if (rightPressed && !prevRightTriggerPressed) {
             if (horizontalSlider.getTargetPosition() == 0) {
+                // Extending sliders - open gripper and move arm
                 horizontalSlider.setTargetPosition(17500);
-                currentArmPivotPosition = ARM_PIVOT_RIGHT_TRIGGER;
+                arm.setToRightTriggerPosition();
+                gripper.open();
             } else {
+                // Retracting sliders - close gripper and move arm back
                 horizontalSlider.setTargetPosition(0);
-                currentArmPivotPosition = ARM_PIVOT_INITIAL;
+                arm.setToInitialPosition();
+                gripper.close();
             }
         }
         // Only fire on the rising edge of left trigger
         else if (leftPressed && !prevLeftTriggerPressed) {
             if (horizontalSlider.getTargetPosition() == 0) {
+                // Extending sliders from 0 to 35000 - open gripper and move arm
                 horizontalSlider.setTargetPosition(35000);
-                currentArmPivotPosition = ARM_PIVOT_LEFT_TRIGGER;
+                arm.setToLeftTriggerPosition();
+                gripper.open();
+            } else if (horizontalSlider.getTargetPosition() == 17500) {
+                // Extending sliders from 17500 to 35000 - move arm to left trigger position
+                horizontalSlider.setTargetPosition(35000);
+                arm.setToLeftTriggerPosition();
+                // Keep gripper open (already open from previous position)
             } else {
+                // Retracting sliders from any other position - close gripper and move arm back
                 horizontalSlider.setTargetPosition(0);
-                currentArmPivotPosition = ARM_PIVOT_INITIAL;
+                arm.setToInitialPosition();
+                gripper.close();
             }
         }
-
-        // Update the arm pivot servo position
-        armPivot.setPosition(currentArmPivotPosition);
 
         // Update previous states for next loop
         prevRightTriggerPressed = rightPressed;
