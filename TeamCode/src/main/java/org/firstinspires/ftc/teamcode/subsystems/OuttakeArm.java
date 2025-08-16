@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class OuttakeArm extends SubsystemBase {
 
-    static public double ARM_INTAKE = 0.2;
-    static public double ARM_OUTTAKE = 0.95;
-    static public double PITCH_INTAKE = 0.2;
-    static public double PITCH_OUTTAKE = 0d;
+    static public double ARM_INTAKE = 0.06;
+    static public double ARM_OUTTAKE = 0.85;
+    static public double PITCH_INTAKE = 0.23;
+    static public double PITCH_OUTTAKE = 0.1;
     static public double ROLL_INTAKE = 0.4;
-    static public double ROLL_OUTTAKE = 0.4;
+    static public double ROLL_OUTTAKE = 0.45;
     static public double OPEN = 0.45;
     static public double CLOSED = 0.67;
 
@@ -25,6 +25,9 @@ public class OuttakeArm extends SubsystemBase {
         pitch = hardwareMap.get(Servo.class, "pitch");
         roll = hardwareMap.get(Servo.class, "oroll");
         gripper = hardwareMap.get(Servo.class, "og");
+
+        goToIntake();
+        close();
     }
 
     public void setArm(double pos) {
