@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
@@ -29,13 +31,7 @@ public class SoloGripperControlCommand extends CommandBase {
         // Y button to toggle gripper open/close
         boolean yButtonPressed = gamepad.getButton(GamepadKeys.Button.Y);
 
-        if (yButtonPressed && !prevYButtonPressed) {
-            if (gripper.isOpen) {
-                gripper.close();
-            } else {
-                gripper.open();
-            }
-        }
+        gamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new ConditionalCommand(new InstantCommand(gripper::close), new InstantCommand(gripper::open), () -> gripper.isOpen));
 
         prevYButtonPressed = yButtonPressed;
 
@@ -43,15 +39,11 @@ public class SoloGripperControlCommand extends CommandBase {
         boolean dpadLeftPressed = gamepad.getButton(GamepadKeys.Button.DPAD_LEFT);
         boolean dpadRightPressed = gamepad.getButton(GamepadKeys.Button.DPAD_RIGHT);
 
-        // Set gripper rotation based on dpad input
-        if (dpadLeftPressed && !prevDpadLeftPressed) {
-            gripper.setRollPosition(LEFT_POSITION);
-        } else if (dpadRightPressed && !prevDpadRightPressed) {
-            gripper.setRollPosition(RIGHT_POSITION);
-        } else if (!dpadLeftPressed && !dpadRightPressed) {
-            // Return to middle position when no dpad is pressed
-            gripper.setRollPosition(MIDDLE_POSITION);
-        }
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(() -> gripper.turn(-90));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> gripper.turn(90));
+
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenReleased(() -> gripper.turn(0));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenReleased(() -> gripper.turn(0));
 
         prevDpadLeftPressed = dpadLeftPressed;
         prevDpadRightPressed = dpadRightPressed;

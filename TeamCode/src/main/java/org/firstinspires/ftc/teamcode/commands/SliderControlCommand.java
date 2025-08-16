@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlider;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
@@ -16,12 +18,17 @@ public class SliderControlCommand extends CommandBase {
 
     private boolean prevRightTriggerPressed = false;
     private boolean prevLeftTriggerPressed = false;
+    private MoveSampleInGripperCommand moveSampleInGripperCommand;
+    private IntakeArmCommand intakeArmCommand;
 
     public SliderControlCommand(HorizontalSlider horizontalSlider, Gamepad gamepad, Arm arm, Gripper gripper) {
         this.horizontalSlider = horizontalSlider;
         this.gamepad = gamepad;
         this.arm = arm;
         this.gripper = gripper;
+
+        moveSampleInGripperCommand = new MoveSampleInGripperCommand(gripper, arm);
+        intakeArmCommand = new IntakeArmCommand(arm, gripper);
 
         addRequirements(horizontalSlider);
         // Note: NOT requiring arm or gripper subsystems so other commands can take control
@@ -36,18 +43,21 @@ public class SliderControlCommand extends CommandBase {
         boolean rightPressed = rightTrigger > TRIGGER_DEADZONE;
         boolean leftPressed = leftTrigger > TRIGGER_DEADZONE;
 
+        Trigger extended = new Trigger(() -> horizontalSlider.getCurrentPosition() >= 15000);
+        Trigger retracted = new Trigger(() -> horizontalSlider.getCurrentPosition() < 15000);
+
+
         // Only fire on the rising edge of right trigger
         if (rightPressed && !prevRightTriggerPressed) {
             if (horizontalSlider.getTargetPosition() == 0) {
-                // Extending sliders - open gripper and move arm
+                // Extending sliders
                 horizontalSlider.setTargetPosition(17500);
-                arm.setToRightTriggerPosition();
-                gripper.open();
+                intakeArmCommand.schedule();
+
             } else {
                 // Retracting sliders - close gripper and move arm back
                 horizontalSlider.setTargetPosition(0);
-                arm.setToInitialPosition();
-                gripper.close();
+                moveSampleInGripperCommand.schedule();
             }
         }
         // Only fire on the rising edge of left trigger
@@ -55,18 +65,17 @@ public class SliderControlCommand extends CommandBase {
             if (horizontalSlider.getTargetPosition() == 0) {
                 // Extending sliders from 0 to 35000 - open gripper and move arm
                 horizontalSlider.setTargetPosition(35000);
-                arm.setToLeftTriggerPosition();
-                gripper.open();
+                intakeArmCommand.schedule();
+
+
             } else if (horizontalSlider.getTargetPosition() == 17500) {
                 // Extending sliders from 17500 to 35000 - move arm to left trigger position
                 horizontalSlider.setTargetPosition(35000);
-                arm.setToLeftTriggerPosition();
                 // Keep gripper open (already open from previous position)
             } else {
                 // Retracting sliders from any other position - close gripper and move arm back
                 horizontalSlider.setTargetPosition(0);
-                arm.setToInitialPosition();
-                gripper.close();
+                moveSampleInGripperCommand.schedule();
             }
         }
 

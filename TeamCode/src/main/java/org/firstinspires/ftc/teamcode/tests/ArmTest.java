@@ -68,14 +68,6 @@ public class ArmTest extends LinearOpMode {
             gripper.setPosition(gripperPosition);
             roll.setPosition(rollPosition);
 
-            // Apply dashboard positions when A button is pressed (for confirmation)
-            if (gamepad1.a) {
-                armPivot.setPosition(armPivotPosition);
-                armRotation.setPosition(armRotationPosition);
-                gripper.setPosition(gripperPosition);
-                roll.setPosition(rollPosition);
-            }
-
             // Display telemetry with all servo positions
             telemetry.addLine("=== SERVO POSITIONS ===");
             telemetry.addData("Arm Pivot", "Target: %.3f | Actual: %.3f", armPivotPosition, armPivot.getPosition());

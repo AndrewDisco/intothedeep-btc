@@ -10,11 +10,12 @@ public class Arm extends SubsystemBase {
     private final Servo armRotation;
 
     public static final double PIVOT_INITIAL = 0.7;
-    public static final double PIVOT_PICKUP = 0.28;
-    public static final double PIVOT_RIGHT_TRIGGER = 0.36;
-    public static final double PIVOT_LEFT_TRIGGER = 0.38;
+    public static final double PIVOT_INTAKE = 0.4;
+    public static final double PIVOT_PICKUP = 0.33;
+    public static final double PIVOT_DROPOFF = 0.7;
 
-    public static final double ROTATION_INITIAL = 0.7;
+    public static final double ROTATION_INITIAL = 0.665;
+    public static final double ROTATION_DROPOFF = 0.05;
 
     public Arm(HardwareMap hardwareMap) {
         armPivot = hardwareMap.get(Servo.class, "armPivot");
@@ -23,6 +24,11 @@ public class Arm extends SubsystemBase {
         // Set initial positions
         armPivot.setPosition(PIVOT_INITIAL);
         armRotation.setPosition(ROTATION_INITIAL);
+    }
+
+    public void set(double pivot, double rotation) {
+        armPivot.setPosition(pivot);
+        armRotation.setPosition(rotation);
     }
 
     public void setPivotPosition(double position) {
@@ -40,13 +46,7 @@ public class Arm extends SubsystemBase {
 
     public void setToPickupPosition() {
         armPivot.setPosition(PIVOT_PICKUP);
+        armRotation.setPosition(ROTATION_INITIAL);
     }
 
-    public void setToRightTriggerPosition() {
-        armPivot.setPosition(PIVOT_RIGHT_TRIGGER);
-    }
-
-    public void setToLeftTriggerPosition() {
-        armPivot.setPosition(PIVOT_LEFT_TRIGGER);
-    }
 }

@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -10,6 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeSpecimenCommand;
+import org.firstinspires.ftc.teamcode.commands.OuttakeCommand;
 import org.firstinspires.ftc.teamcode.commands.PickupCommand;
 import org.firstinspires.ftc.teamcode.commands.DropCommand;
 import org.firstinspires.ftc.teamcode.commands.SliderControlCommand;
@@ -19,6 +23,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalSlider;
 import org.firstinspires.ftc.teamcode.subsystems.Gripper;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
+import org.firstinspires.ftc.teamcode.subsystems.OuttakeArm;
+import org.firstinspires.ftc.teamcode.subsystems.VerticalExtension;
 
 import java.util.List;
 
@@ -29,6 +35,8 @@ public class SoloOpMode extends LinearOpMode {
     private HorizontalSlider horizontalSlider;
     private Gripper gripper;
     private Arm arm;
+    private VerticalExtension verticalExtension;
+    private OuttakeArm outtakeArm;
     private GamepadEx soloGamepad;
 
     // Drive speed coefficient
@@ -53,6 +61,8 @@ public class SoloOpMode extends LinearOpMode {
         horizontalSlider = new HorizontalSlider(hardwareMap);
         gripper = new Gripper(hardwareMap);
         arm = new Arm(hardwareMap);
+        verticalExtension = new VerticalExtension(hardwareMap);
+        outtakeArm = new OuttakeArm(hardwareMap);
 
         // Initialize single gamepad
         soloGamepad = new GamepadEx(gamepad1);
@@ -62,6 +72,9 @@ public class SoloOpMode extends LinearOpMode {
         CommandScheduler.getInstance().registerSubsystem(horizontalSlider);
         CommandScheduler.getInstance().registerSubsystem(gripper);
         CommandScheduler.getInstance().registerSubsystem(arm);
+        CommandScheduler.getInstance().registerSubsystem(verticalExtension);
+        CommandScheduler.getInstance().registerSubsystem(outtakeArm);
+
 
         // Create and schedule commands for solo operation
         DriveCommand driveCommand = new DriveCommand(drivetrain, soloGamepad, DRIVE_SPEED);
@@ -69,6 +82,8 @@ public class SoloOpMode extends LinearOpMode {
         SoloGripperControlCommand gripperCommand = new SoloGripperControlCommand(gripper, soloGamepad);
         SoloTelemetryCommand telemetryCommand = new SoloTelemetryCommand(telemetry, drivetrain, horizontalSlider,
                                                                 gripper, soloGamepad, gamepad1, arm);
+        OuttakeCommand outtakeCommand = new OuttakeCommand(verticalExtension, outtakeArm);
+        IntakeSpecimenCommand intakeSpecimenCommand = new IntakeSpecimenCommand(verticalExtension, outtakeArm);
 
         // Schedule the commands as default commands
         CommandScheduler.getInstance().setDefaultCommand(drivetrain, driveCommand);
@@ -81,6 +96,18 @@ public class SoloOpMode extends LinearOpMode {
                 .whenPressed(new PickupCommand(gripper, arm));
         soloGamepad.getGamepadButton(GamepadKeys.Button.B)
                 .whenPressed(new DropCommand(gripper, arm));
+        soloGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+                new ConditionalCommand(
+                        new InstantCommand(outtakeArm::close),
+                        new InstantCommand(outtakeArm::open),
+                        () -> outtakeArm.isOpen
+                )
+        );
+        soloGamepad.getGamepadButton(GamepadKeys.Button.A).whenPressed(new ConditionalCommand(
+                intakeSpecimenCommand,
+                outtakeCommand,
+                () -> verticalExtension.getCurrentPosition() >= 5000
+        ));
 
         // Initial telemetry
         telemetry.addLine("Solo Drive OpMode Ready!");
