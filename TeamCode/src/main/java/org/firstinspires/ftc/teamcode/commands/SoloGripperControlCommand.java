@@ -30,20 +30,30 @@ public class SoloGripperControlCommand extends CommandBase {
     public void execute() {
         // Y button to toggle gripper open/close
         boolean yButtonPressed = gamepad.getButton(GamepadKeys.Button.Y);
-
-        gamepad.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new ConditionalCommand(new InstantCommand(gripper::close), new InstantCommand(gripper::open), () -> gripper.isOpen));
-
+        if (yButtonPressed && !prevYButtonPressed) {
+            if (gripper.isOpen) {
+                gripper.close();
+            } else {
+                gripper.open();
+            }
+        }
         prevYButtonPressed = yButtonPressed;
 
         // Dpad controls for gripper rotation
         boolean dpadLeftPressed = gamepad.getButton(GamepadKeys.Button.DPAD_LEFT);
         boolean dpadRightPressed = gamepad.getButton(GamepadKeys.Button.DPAD_RIGHT);
 
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(() -> gripper.turn(-90));
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> gripper.turn(90));
+        if (dpadLeftPressed && !prevDpadLeftPressed) {
+            gripper.turn(-90);
+        } else if (!dpadLeftPressed && prevDpadLeftPressed) {
+            gripper.turn(0);
+        }
 
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenReleased(() -> gripper.turn(0));
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenReleased(() -> gripper.turn(0));
+        if (dpadRightPressed && !prevDpadRightPressed) {
+            gripper.turn(90);
+        } else if (!dpadRightPressed && prevDpadRightPressed) {
+            gripper.turn(0);
+        }
 
         prevDpadLeftPressed = dpadLeftPressed;
         prevDpadRightPressed = dpadRightPressed;
