@@ -37,7 +37,7 @@ public class SoloOpMode extends LinearOpMode {
     private Arm arm;
     private VerticalExtension verticalExtension;
     private OuttakeArm outtakeArm;
-    private GamepadEx soloGamepad;
+    private GamepadEx soloGamepad, pitchGamepad;
 
     // Drive speed coefficient
     private static final double DRIVE_SPEED = 1.0;
@@ -64,8 +64,9 @@ public class SoloOpMode extends LinearOpMode {
         verticalExtension = new VerticalExtension(hardwareMap);
         outtakeArm = new OuttakeArm(hardwareMap);
 
-        // Initialize single gamepad
+        // Initialize gamepads
         soloGamepad = new GamepadEx(gamepad1);
+        pitchGamepad = new GamepadEx(gamepad2);
 
         // Register subsystems with the command scheduler
         CommandScheduler.getInstance().registerSubsystem(drivetrain);
@@ -91,6 +92,10 @@ public class SoloOpMode extends LinearOpMode {
         CommandScheduler.getInstance().setDefaultCommand(gripper, gripperCommand);
         CommandScheduler.getInstance().schedule(telemetryCommand);
 
+        // Set initial positions
+        outtakeArm.goToInit();
+        arm.goToInit();
+
         // Button mappings for single gamepad
         soloGamepad.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(new PickupCommand(gripper, arm));
@@ -109,6 +114,12 @@ public class SoloOpMode extends LinearOpMode {
                 () -> verticalExtension.getCurrentPosition() >= 5000
         ));
 
+        // Pitch control using gamepad2 dpad up/down
+        pitchGamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                .whenPressed(new InstantCommand(outtakeArm::increasePitch));
+        pitchGamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                .whenPressed(new InstantCommand(outtakeArm::decreasePitch));
+
         // Initial telemetry
         telemetry.addLine("Solo Drive OpMode Ready!");
         telemetry.addLine();
@@ -122,6 +133,10 @@ public class SoloOpMode extends LinearOpMode {
         telemetry.addLine("B button: Execute drop sequence");
         telemetry.addLine("Dpad Right: Gripper rotate right");
         telemetry.addLine("Dpad Left: Gripper rotate left");
+        telemetry.addLine();
+        telemetry.addLine("GAMEPAD 2 - Pitch Control:");
+        telemetry.addLine("Dpad Up: Increase outtake arm pitch");
+        telemetry.addLine("Dpad Down: Decrease outtake arm pitch");
         telemetry.update();
 
         waitForStart();
@@ -129,6 +144,10 @@ public class SoloOpMode extends LinearOpMode {
         while (opModeIsActive()) {
             // Update command scheduler
             CommandScheduler.getInstance().run();
+
+            // Update gamepads
+            soloGamepad.readButtons();
+            pitchGamepad.readButtons();
 
             // Periodic telemetry updates are handled by TelemetryCommand
         }

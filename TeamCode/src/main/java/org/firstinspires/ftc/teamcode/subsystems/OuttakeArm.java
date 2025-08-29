@@ -8,16 +8,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class OuttakeArm extends SubsystemBase {
 
+    static public double ARM_INITIAL = 0.9;
     static public double ARM_INTAKE = 0.06;
     static public double ARM_OUTTAKE = 0.85;
+    static public double PITCH_INITIAL = 0.00;
     static public double PITCH_INTAKE = 0.23;
-    static public double PITCH_OUTTAKE = 0.1;
+    static public double PITCH_OUTTAKE = 0.15;
     static public double ROLL_INTAKE = 0.4;
     static public double ROLL_OUTTAKE = 0.45;
     static public double OPEN = 0.45;
     static public double CLOSED = 0.67;
+    static public double PITCH_INCREMENT = 0.05; // Amount to change pitch per button press
 
     Servo s1, s2, pitch, gripper, roll;
+    private double currentPitch = PITCH_INITIAL; // Track current pitch position
 
     public OuttakeArm(HardwareMap hardwareMap) {
         s1 = hardwareMap.get(Servo.class, "o1");
@@ -26,7 +30,10 @@ public class OuttakeArm extends SubsystemBase {
         roll = hardwareMap.get(Servo.class, "oroll");
         gripper = hardwareMap.get(Servo.class, "og");
 
-        goToIntake();
+        // Set initial positions for init period
+        setArm(ARM_INITIAL);
+        setPitch(PITCH_INITIAL);
+        setRoll(ROLL_INTAKE);
         close();
     }
 
@@ -36,6 +43,9 @@ public class OuttakeArm extends SubsystemBase {
     }
 
     public void setPitch(double pos) {
+        // Clamp position between 0.0 and 1.0
+        pos = Math.max(0.0, Math.min(1.0, pos));
+        currentPitch = pos;
         pitch.setPosition(pos);
     }
 
@@ -69,5 +79,22 @@ public class OuttakeArm extends SubsystemBase {
         setPitch(PITCH_OUTTAKE);
     }
 
+    public void goToInit() {
+        setArm(ARM_INITIAL);
+        setPitch(PITCH_INITIAL);
+        setRoll(ROLL_INTAKE);
+    }
+
+    public void increasePitch() {
+        setPitch(currentPitch + PITCH_INCREMENT);
+    }
+
+    public void decreasePitch() {
+        setPitch(currentPitch - PITCH_INCREMENT);
+    }
+
+    public double getCurrentPitch() {
+        return currentPitch;
+    }
 
 }

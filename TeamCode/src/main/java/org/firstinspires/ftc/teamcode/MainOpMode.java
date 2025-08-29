@@ -119,6 +119,10 @@ public class MainOpMode extends LinearOpMode {
         // PTO controls for operator gamepad
         pto.setPosition(0.3);
 
+        // Set initial positions
+        outtakeArm.goToInit();
+        arm.goToInit();
+
         operatorGamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
                 new InstantCommand(() -> pto.setPosition(0))
         );

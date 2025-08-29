@@ -24,7 +24,7 @@ public class VerticalExtension extends SubsystemBase {
     public static double kF = 0.02;     // Feed-forward gain
 
     // Other tunable parameters
-    public static double tolerance = 200.0;  // Position tolerance in ticks
+    public static double tolerance = 500.0;  // Position tolerance in ticks
     public static double MIN_POSITION = 0;
     public static double MAX_POSITION = 35000;
     public static double INTAKE_POSITION = 0;

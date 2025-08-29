@@ -15,6 +15,9 @@ public class OuttakeArmTest extends LinearOpMode {
     public static double ROLL = 0.5;
     public static double GRIPPER = 0.4;
 
+    // arm 0.9
+    // pitch 0
+
 
     @Override
     public void runOpMode() throws InterruptedException {

@@ -9,6 +9,9 @@ public class Arm extends SubsystemBase {
     private final Servo armPivot;
     private final Servo armRotation;
 
+
+    public static final double PIVOT_INIT = 1.0;
+    public static final double ROTATION_INIT = 0.0;
     public static final double PIVOT_INITIAL = 0.7;
     public static final double PIVOT_INTAKE = 0.4;
     public static final double PIVOT_PICKUP = 0.33;
@@ -39,9 +42,9 @@ public class Arm extends SubsystemBase {
         armRotation.setPosition(position);
     }
 
-    public void setToInitialPosition() {
-        armPivot.setPosition(PIVOT_INITIAL);
-        armRotation.setPosition(ROTATION_INITIAL);
+    public void goToInit() {
+        armPivot.setPosition(PIVOT_INIT);
+        armRotation.setPosition(ROTATION_INIT);
     }
 
     public void setToPickupPosition() {
